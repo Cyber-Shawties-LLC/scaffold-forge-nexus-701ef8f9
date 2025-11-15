@@ -18,9 +18,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 192 62% 18%;
 
-    /* Deep Teal - Primary Brand */
-    --primary: 192 72% 20%;
-    --primary-foreground: 32 40% 98%;
+    /* Vibrant Purple - Primary Brand */
+    --primary: 270 95% 75%;
+    --primary-foreground: 0 0% 100%;
     
     /* Emerald Blue-Green - Accents */
     --secondary: 185 100% 23%;
