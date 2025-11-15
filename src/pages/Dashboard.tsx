@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import ClinicianDashboard from "@/components/dashboard/ClinicianDashboard";
+import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import PatientPortal from "@/components/dashboard/PatientPortal";
 
 const Dashboard = () => {
@@ -15,6 +15,21 @@ const Dashboard = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchUserRole = async (userId: string) => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user role:", error);
+        setUserRole("patient"); // Default to patient
+      } else {
+        setUserRole(data?.role || "patient");
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -22,9 +37,7 @@ const Dashboard = () => {
       if (!session) {
         navigate("/auth");
       } else {
-        // Get user role from metadata
-        const role = session.user.user_metadata?.role || "patient";
-        setUserRole(role);
+        fetchUserRole(session.user.id);
       }
       setLoading(false);
     });
@@ -36,8 +49,7 @@ const Dashboard = () => {
       if (!session) {
         navigate("/auth");
       } else {
-        const role = session.user.user_metadata?.role || "patient";
-        setUserRole(role);
+        fetchUserRole(session.user.id);
       }
       setLoading(false);
     });
@@ -88,11 +100,11 @@ const Dashboard = () => {
       </header>
 
       {/* Dashboard Content */}
-      {userRole === "clinician" ? (
-        <ClinicianDashboard />
-      ) : (
-        <PatientPortal />
-      )}
+      <Routes>
+        <Route path="admin/*" element={userRole === "admin" ? <AdminDashboard /> : <PatientPortal />} />
+        <Route path="patient/*" element={<PatientPortal />} />
+        <Route index element={userRole === "admin" ? <AdminDashboard /> : <PatientPortal />} />
+      </Routes>
     </div>
   );
 };
