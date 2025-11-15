@@ -16,7 +16,6 @@ const Auth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "patient">("patient");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -51,18 +50,6 @@ const Auth = () => {
       });
 
       if (error) throw error;
-
-      // Insert role into user_roles table
-      if (authData.user) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: authData.user.id, role: role });
-
-        if (roleError) {
-          console.error('Failed to assign role:', roleError);
-          // Don't throw - user is created, just log the error
-        }
-      }
 
       toast.success("Account created! Please check your email to verify.");
     } catch (error: any) {
@@ -173,27 +160,6 @@ const Auth = () => {
                       required
                       minLength={6}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>I am a...</Label>
-                    <div className="flex gap-4">
-                      <Button
-                        type="button"
-                        variant={role === "patient" ? "default" : "outline"}
-                        className="flex-1"
-                        onClick={() => setRole("patient")}
-                      >
-                        Patient
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={role === "admin" ? "default" : "outline"}
-                        className="flex-1"
-                        onClick={() => setRole("admin")}
-                      >
-                        Admin
-                      </Button>
-                    </div>
                   </div>
                   <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={loading}>
                     {loading ? "Creating account..." : "Create Account"}

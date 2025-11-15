@@ -23,7 +23,6 @@ const Dashboard = () => {
         .single();
 
       if (error) {
-        console.error("Error fetching user role:", error);
         setUserRole("patient"); // Default to patient
       } else {
         setUserRole(data?.role || "patient");
@@ -101,7 +100,22 @@ const Dashboard = () => {
 
       {/* Dashboard Content */}
       <Routes>
-        <Route path="admin/*" element={userRole === "admin" ? <AdminDashboard /> : <PatientPortal />} />
+        <Route 
+          path="admin/*" 
+          element={
+            userRole === "admin" ? (
+              <AdminDashboard />
+            ) : (
+              <div className="container mx-auto px-6 py-8 text-center">
+                <h2 className="font-serif text-2xl font-bold mb-4">Access Denied</h2>
+                <p className="text-muted-foreground mb-6">You don't have permission to access this area.</p>
+                <Button onClick={() => navigate("/dashboard/patient/wellness")}>
+                  Go to Patient Portal
+                </Button>
+              </div>
+            )
+          } 
+        />
         <Route path="patient/*" element={<PatientPortal />} />
         <Route index element={userRole === "admin" ? <AdminDashboard /> : <PatientPortal />} />
       </Routes>
