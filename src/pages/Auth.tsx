@@ -16,7 +16,7 @@ const Auth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"clinician" | "patient">("patient");
+  const [role, setRole] = useState<"admin" | "patient">("patient");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -42,18 +42,27 @@ const Auth = () => {
 
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            role: role
-          }
+          emailRedirectTo: redirectUrl
         }
       });
 
       if (error) throw error;
+
+      // Insert role into user_roles table
+      if (authData.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: authData.user.id, role: role });
+
+        if (roleError) {
+          console.error('Failed to assign role:', roleError);
+          // Don't throw - user is created, just log the error
+        }
+      }
 
       toast.success("Account created! Please check your email to verify.");
     } catch (error: any) {
@@ -178,11 +187,11 @@ const Auth = () => {
                       </Button>
                       <Button
                         type="button"
-                        variant={role === "clinician" ? "default" : "outline"}
+                        variant={role === "admin" ? "default" : "outline"}
                         className="flex-1"
-                        onClick={() => setRole("clinician")}
+                        onClick={() => setRole("admin")}
                       >
-                        Clinician
+                        Admin
                       </Button>
                     </div>
                   </div>
