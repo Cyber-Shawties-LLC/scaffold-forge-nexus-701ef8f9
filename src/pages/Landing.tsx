@@ -109,6 +109,61 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Articles Section */}
+      <section className="container mx-auto px-6 py-20">
+        <div className="text-center mb-12">
+          <h2 className="font-serif text-4xl font-bold text-primary-foreground mb-4">
+            Learn More About Privacy
+          </h2>
+          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
+            Explore how we protect your health information
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              id: 1,
+              title: "Understanding HIPAA Compliance",
+              description: "Learn how we meet healthcare privacy regulations",
+              icon: Lock
+            },
+            {
+              id: 2,
+              title: "Military-Grade Encryption Explained",
+              description: "Discover how we encrypt your data at rest and in transit",
+              icon: Shield
+            },
+            {
+              id: 3,
+              title: "AI-Powered Health Insights",
+              description: "See how AI helps you understand your health data",
+              icon: FileCheck
+            },
+            {
+              id: 4,
+              title: "Your Right to Data Transparency",
+              description: "Track who accesses your records and when",
+              icon: Eye
+            }
+          ].map((article) => (
+            <Link key={article.id} to={`/article/${article.id}`}>
+              <div className="bg-card/10 backdrop-blur-md rounded-2xl p-6 border border-primary-foreground/10 hover:border-gold/50 transition-all hover:shadow-[0_0_30px_rgba(218,165,32,0.15)] h-full cursor-pointer">
+                <div className="rounded-lg bg-gold/20 w-12 h-12 flex items-center justify-center mb-4">
+                  <article.icon className="w-6 h-6 text-gold" />
+                </div>
+                <h3 className="font-serif text-xl font-bold text-primary-foreground mb-2">
+                  {article.title}
+                </h3>
+                <p className="text-primary-foreground/80 leading-relaxed">
+                  {article.description}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="container mx-auto px-6 py-8 border-t border-primary-foreground/10">
         <div className="text-center text-primary-foreground/70">
