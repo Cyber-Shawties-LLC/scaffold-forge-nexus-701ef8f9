@@ -9,6 +9,12 @@ import Dashboard from "./pages/Dashboard";
 import ArticleDetail from "./pages/ArticleDetail";
 import NotFound from "./pages/NotFound";
 import NotAuthorized from "./pages/NotAuthorized";
+import About from "./pages/About";
+import HowItWorks from "./pages/HowItWorks";
+import Pricing from "./pages/Pricing";
+import WellnessResources from "./pages/WellnessResources";
+import PrivacySecurity from "./pages/PrivacySecurity";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +30,12 @@ const App = () => (
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/article/:id" element={<ArticleDetail />} />
           <Route path="/not-authorized" element={<NotAuthorized />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/wellness-resources" element={<WellnessResources />} />
+          <Route path="/privacy-security" element={<PrivacySecurity />} />
+          <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
