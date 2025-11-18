@@ -23,7 +23,7 @@ const Pricing = () => {
     },
     {
       name: "Pro Plan",
-      price: "$29",
+      price: "$4.99",
       period: "/month",
       description: "Best for patients who want full control",
       icon: Users,
