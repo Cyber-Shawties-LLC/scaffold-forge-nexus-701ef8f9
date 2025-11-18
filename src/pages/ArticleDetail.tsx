@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Eye, Lock, Brain, ArrowLeft } from "lucide-react";
+import HamburgerMenu from "@/components/navigation/HamburgerMenu";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -130,16 +131,33 @@ const ArticleDetail = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary via-secondary to-plum">
       {/* Header */}
-      <header className="border-b border-primary-foreground/10 backdrop-blur-md bg-background/30">
-        <div className="container mx-auto px-6 py-4">
+      <header className="container mx-auto px-6 py-6">
+        <div className="flex items-center justify-between">
           <Link to="/">
-            <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
+            <h1 className="font-serif text-3xl font-bold text-primary-foreground">
+              Umi Nur
+            </h1>
           </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/auth" className="hidden md:block">
+              <Button variant="outline" className="bg-card/10 border-primary-foreground/30 text-primary-foreground hover:bg-card/20">
+                Sign In
+              </Button>
+            </Link>
+            <HamburgerMenu />
+          </div>
         </div>
       </header>
+      
+      {/* Back Navigation */}
+      <div className="container mx-auto px-6 pb-4">
+        <Link to="/">
+          <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
+      </div>
 
       {/* Article Content */}
       <div className="container mx-auto px-6 py-12">
