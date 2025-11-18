@@ -3,6 +3,7 @@ import { Shield, Lock, Eye, FileCheck, Key, Database, MessageSquare, Heart, User
 import { Link } from "react-router-dom";
 import HamburgerMenu from "@/components/navigation/HamburgerMenu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import Footer from "@/components/layout/Footer";
 
 const Landing = () => {
   return (
@@ -440,74 +441,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="container mx-auto px-6 py-12 border-t border-primary-foreground/10">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-4">Umi Nur</h3>
-            <p className="text-primary-foreground/70 text-sm">
-              Privacy-first healthcare data protection platform
-            </p>
-          </div>
-          <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">Legal</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/privacy-security" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy-security" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  Security
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">Resources</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/wellness-resources" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  Wellness Resources
-                </Link>
-              </li>
-              <li>
-                <Link to="/how-it-works" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  How It Works
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-primary-foreground/70 hover:text-primary-foreground text-sm">
-                  Pricing
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="text-center text-primary-foreground/70 text-sm pt-8 border-t border-primary-foreground/10">
-          <p>© 2025 Umi Nur. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

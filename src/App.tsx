@@ -15,6 +15,8 @@ import Pricing from "./pages/Pricing";
 import WellnessResources from "./pages/WellnessResources";
 import PrivacySecurity from "./pages/PrivacySecurity";
 import Contact from "./pages/Contact";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/article/:id" element={<ArticleDetail />} />
           <Route path="/not-authorized" element={<NotAuthorized />} />
