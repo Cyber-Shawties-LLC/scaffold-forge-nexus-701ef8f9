@@ -3,10 +3,16 @@ import DashboardTabs from "@/components/navigation/DashboardTabs";
 import WellnessResources from "@/pages/patient/WellnessResources";
 import PrivacySecurity from "@/pages/patient/PrivacySecurity";
 import PatientSettings from "@/pages/patient/PatientSettings";
+import Appointments from "@/pages/patient/Appointments";
+import Records from "@/pages/patient/Records";
+import Messages from "@/pages/patient/Messages";
 
 const PatientPortal = () => {
   const tabs = [
-    { name: "Wellness Resources", path: "/dashboard/patient/wellness" },
+    { name: "Appointments", path: "/dashboard/patient/appointments" },
+    { name: "My Records", path: "/dashboard/patient/records" },
+    { name: "Messages", path: "/dashboard/patient/messages" },
+    { name: "Wellness", path: "/dashboard/patient/wellness" },
     { name: "Privacy & Security", path: "/dashboard/patient/privacy-security" },
     { name: "Settings", path: "/dashboard/patient/settings" },
   ];
@@ -25,7 +31,10 @@ const PatientPortal = () => {
       <DashboardTabs tabs={tabs} />
 
       <Routes>
-        <Route index element={<Navigate to="/dashboard/patient/wellness" replace />} />
+        <Route index element={<Navigate to="/dashboard/patient/appointments" replace />} />
+        <Route path="appointments" element={<Appointments />} />
+        <Route path="records" element={<Records />} />
+        <Route path="messages" element={<Messages />} />
         <Route path="wellness" element={<WellnessResources />} />
         <Route path="privacy-security" element={<PrivacySecurity />} />
         <Route path="settings" element={<PatientSettings />} />

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import PatientPortal from "@/components/dashboard/PatientPortal";
+import ChatBot from "@/components/chatbot/ChatBot";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -119,6 +120,9 @@ const Dashboard = () => {
         <Route path="patient/*" element={<PatientPortal />} />
         <Route index element={userRole === "admin" ? <AdminDashboard /> : <PatientPortal />} />
       </Routes>
+      
+      {/* AI Chatbot - Role-aware */}
+      {userRole && <ChatBot mode={userRole === "admin" ? "admin" : "patient"} />}
     </div>
   );
 };
