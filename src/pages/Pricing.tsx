@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import HamburgerMenu from "@/components/navigation/HamburgerMenu";
+import Navigation from "@/components/navigation/Navigation";
 import { Check, Shield, Users, Building2 } from "lucide-react";
 
 const Pricing = () => {
@@ -70,14 +70,7 @@ const Pricing = () => {
               Umi Nur
             </h1>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/auth" className="hidden md:block">
-              <Button variant="outline" className="bg-card/10 border-primary-foreground/30 text-primary-foreground hover:bg-card/20">
-                Sign In
-              </Button>
-            </Link>
-            <HamburgerMenu />
-          </div>
+          <Navigation />
         </div>
       </header>
 

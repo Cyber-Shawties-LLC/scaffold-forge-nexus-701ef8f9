@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Eye, Lock, Brain, ArrowLeft } from "lucide-react";
-import HamburgerMenu from "@/components/navigation/HamburgerMenu";
+import Navigation from "@/components/navigation/Navigation";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -138,14 +138,7 @@ const ArticleDetail = () => {
               Umi Nur
             </h1>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/auth" className="hidden md:block">
-              <Button variant="outline" className="bg-card/10 border-primary-foreground/30 text-primary-foreground hover:bg-card/20">
-                Sign In
-              </Button>
-            </Link>
-            <HamburgerMenu />
-          </div>
+          <Navigation />
         </div>
       </header>
       

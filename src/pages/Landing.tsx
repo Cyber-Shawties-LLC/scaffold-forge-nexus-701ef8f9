@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Shield, Lock, Eye, FileCheck, Key, Database, MessageSquare, Heart, Users, Building2, Star, CheckCircle2 } from "lucide-react";
+import { Shield, Lock, Eye, FileCheck, Key, Database, MessageSquare, Heart, Users, Building2, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import HamburgerMenu from "@/components/navigation/HamburgerMenu";
+import Navigation from "@/components/navigation/Navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Footer from "@/components/layout/Footer";
 
@@ -16,14 +16,7 @@ const Landing = () => {
               Umi Nur
             </h1>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/auth" className="hidden md:block">
-              <Button variant="outline" className="bg-card/10 border-primary-foreground/30 text-primary-foreground hover:bg-card/20">
-                Sign In
-              </Button>
-            </Link>
-            <HamburgerMenu />
-          </div>
+          <Navigation />
         </div>
       </header>
 
@@ -249,58 +242,6 @@ const Landing = () => {
               <p className="text-primary-foreground/80 leading-relaxed">
                 {feature.description}
               </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
-            Trusted by Healthcare Professionals
-          </h2>
-          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
-            See what our users are saying about Umi Nur
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {[
-            {
-              name: "Dr. Sarah Chen",
-              role: "Women's Health Specialist",
-              content: "Umi Nur has transformed how we handle patient data. The security and transparency give our patients peace of mind, and the compliance tools make our job easier.",
-              rating: 5
-            },
-            {
-              name: "Maria Rodriguez",
-              role: "Patient",
-              content: "Finally, a platform that puts me in control of my health records. I can see exactly who accessed my data and when. It's empowering.",
-              rating: 5
-            },
-            {
-              name: "James Wilson",
-              role: "IT Administrator",
-              content: "The SIEM integration and monitoring tools are excellent. We can track everything in real-time and maintain full compliance with ease.",
-              rating: 5
-            }
-          ].map((testimonial, index) => (
-            <div
-              key={index}
-              className="bg-card/10 backdrop-blur-md rounded-2xl p-6 border border-primary-foreground/10 hover:border-gold/50 transition-all"
-            >
-              <div className="flex gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-gold text-gold" />
-                ))}
-              </div>
-              <p className="text-primary-foreground/80 mb-6 leading-relaxed italic">
-                "{testimonial.content}"
-              </p>
-              <div>
-                <p className="font-semibold text-primary-foreground">{testimonial.name}</p>
-                <p className="text-sm text-primary-foreground/60">{testimonial.role}</p>
-              </div>
             </div>
           ))}
         </div>

@@ -6,6 +6,7 @@ import PatientSettings from "@/pages/patient/PatientSettings";
 import Appointments from "@/pages/patient/Appointments";
 import Records from "@/pages/patient/Records";
 import Messages from "@/pages/patient/Messages";
+import PeriodTracker from "@/pages/patient/PeriodTracker";
 
 const PatientPortal = () => {
   const tabs = [
@@ -13,6 +14,7 @@ const PatientPortal = () => {
     { name: "My Records", path: "/dashboard/patient/records" },
     { name: "Messages", path: "/dashboard/patient/messages" },
     { name: "Wellness", path: "/dashboard/patient/wellness" },
+    { name: "Period Tracker", path: "/dashboard/patient/period-tracker" },
     { name: "Privacy & Security", path: "/dashboard/patient/privacy-security" },
     { name: "Settings", path: "/dashboard/patient/settings" },
   ];
@@ -36,6 +38,7 @@ const PatientPortal = () => {
         <Route path="records" element={<Records />} />
         <Route path="messages" element={<Messages />} />
         <Route path="wellness" element={<WellnessResources />} />
+        <Route path="period-tracker" element={<PeriodTracker />} />
         <Route path="privacy-security" element={<PrivacySecurity />} />
         <Route path="settings" element={<PatientSettings />} />
       </Routes>
