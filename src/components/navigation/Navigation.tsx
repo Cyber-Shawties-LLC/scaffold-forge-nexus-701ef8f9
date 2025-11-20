@@ -14,7 +14,6 @@ const Navigation = () => {
     { label: "About Umi Nur", path: "/about" },
     { label: "How It Works", path: "/how-it-works" },
     { label: "Patient Login", path: "/auth?type=patient" },
-    { label: "Admin Login", path: "/auth?type=admin" },
     { label: "Wellness Resources", path: "/wellness-resources" },
     { label: "Pricing Plans", path: "/pricing" },
     { label: "Privacy & Security", path: "/privacy-security" },

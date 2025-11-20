@@ -20,6 +20,7 @@ const Footer = () => {
       { label: "Terms of Service", path: "#" },
       { label: "Security", path: "/privacy-security" },
       { label: "HIPAA Compliance", path: "#" },
+      { label: "Security Admin Portal", path: "/security-admin/login" },
     ],
   };
 

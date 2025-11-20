@@ -17,6 +17,9 @@ import PrivacySecurity from "./pages/PrivacySecurity";
 import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SecurityAdminLogin from "./pages/security/SecurityAdminLogin";
+import SecurityAdminDashboard from "./pages/security/SecurityAdminDashboard";
+import SecurityAdminRoute from "./components/security/SecurityAdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +43,16 @@ const App = () => (
           <Route path="/wellness-resources" element={<WellnessResources />} />
           <Route path="/privacy-security" element={<PrivacySecurity />} />
           <Route path="/contact" element={<Contact />} />
+          {/* Security Admin Portal Routes */}
+          <Route path="/security-admin/login" element={<SecurityAdminLogin />} />
+          <Route 
+            path="/security-admin/dashboard" 
+            element={
+              <SecurityAdminRoute>
+                <SecurityAdminDashboard />
+              </SecurityAdminRoute>
+            } 
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
