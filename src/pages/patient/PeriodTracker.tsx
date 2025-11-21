@@ -101,7 +101,7 @@ const PeriodTracker = () => {
     try {
       const predictions = calculatePredictions(new Date(lastPeriod), cycleLength, periodLength);
 
-      const dataToSave: Partial<PeriodTrackerData> = {
+      const dataToSave = {
         user_id: userId,
         last_period: lastPeriod,
         cycle_length: cycleLength,
