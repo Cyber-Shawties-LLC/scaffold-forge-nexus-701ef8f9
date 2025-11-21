@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SecurityAuthProvider } from "@/contexts/SecurityAuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -17,46 +19,105 @@ import PrivacySecurity from "./pages/PrivacySecurity";
 import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import SecurityAdminLogin from "./pages/security/SecurityAdminLogin";
-import SecurityAdminDashboard from "./pages/security/SecurityAdminDashboard";
-import SecurityAdminRoute from "./components/security/SecurityAdminRoute";
+import SecurityAdminLogin from "./pages/SecurityAdmin/SecurityAdminLogin";
+import SecurityAdminDashboard from "./pages/SecurityAdmin/SecurityAdminDashboard";
+import WazuhModule from "./pages/SecurityAdmin/Wazuh/WazuhModule";
+import ComingSoon from "./pages/SecurityAdmin/ComingSoon";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/dashboard/*" element={<Dashboard />} />
-          <Route path="/article/:id" element={<ArticleDetail />} />
-          <Route path="/not-authorized" element={<NotAuthorized />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/wellness-resources" element={<WellnessResources />} />
-          <Route path="/privacy-security" element={<PrivacySecurity />} />
-          <Route path="/contact" element={<Contact />} />
-          {/* Security Admin Portal Routes */}
-          <Route path="/security-admin/login" element={<SecurityAdminLogin />} />
-          <Route 
-            path="/security-admin/dashboard" 
-            element={
-              <SecurityAdminRoute>
-                <SecurityAdminDashboard />
-              </SecurityAdminRoute>
-            } 
-          />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <SecurityAuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route path="/article/:id" element={<ArticleDetail />} />
+            <Route path="/not-authorized" element={<NotAuthorized />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/wellness-resources" element={<WellnessResources />} />
+            <Route path="/privacy-security" element={<PrivacySecurity />} />
+            <Route path="/contact" element={<Contact />} />
+            {/* Security Admin Routes */}
+            <Route path="/security-admin/login" element={<SecurityAdminLogin />} />
+            <Route
+              path="/security-admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <SecurityAdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/wazuh"
+              element={
+                <ProtectedRoute>
+                  <WazuhModule />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/cloudtrail"
+              element={
+                <ProtectedRoute>
+                  <ComingSoon moduleName="AWS CloudTrail Logs" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/guardduty"
+              element={
+                <ProtectedRoute>
+                  <ComingSoon moduleName="AWS GuardDuty Findings" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/securityhub"
+              element={
+                <ProtectedRoute>
+                  <ComingSoon moduleName="AWS Security Hub Score" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/iam"
+              element={
+                <ProtectedRoute>
+                  <ComingSoon moduleName="IAM Activity Monitor" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/s3"
+              element={
+                <ProtectedRoute>
+                  <ComingSoon moduleName="S3 Bucket Monitoring" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/vpc"
+              element={
+                <ProtectedRoute>
+                  <ComingSoon moduleName="VPC Flow Logs" />
+                </ProtectedRoute>
+              }
+            />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </SecurityAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
