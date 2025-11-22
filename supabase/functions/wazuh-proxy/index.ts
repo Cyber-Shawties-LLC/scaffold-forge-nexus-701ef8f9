@@ -34,6 +34,9 @@ serve(async (req) => {
     const url = new URL(req.url);
     let path = url.searchParams.get('path') || '/api/login';
     const method = req.method;
+    
+    // Extract base path without query parameters for validation
+    const basePath = path.split('?')[0];
 
     // Get request body if present
     let requestBody: any = null;
@@ -58,8 +61,8 @@ serve(async (req) => {
       }
     }
 
-    // Validate path is allowed
-    if (!ALLOWED_PATHS.includes(path as any)) {
+    // Validate base path is allowed (ignore query parameters)
+    if (!ALLOWED_PATHS.includes(basePath as any)) {
       console.error(`Blocked unauthorized path attempt: ${path}`);
       return new Response(
         JSON.stringify({ 
@@ -73,8 +76,8 @@ serve(async (req) => {
       );
     }
 
-    // Additional path format validation
-    if (path.includes('..') || !path.startsWith('/api/')) {
+    // Additional path format validation (check base path)
+    if (basePath.includes('..') || !basePath.startsWith('/api/')) {
       console.error(`Blocked malicious path pattern: ${path}`);
       return new Response(
         JSON.stringify({ error: 'Invalid path format' }),
