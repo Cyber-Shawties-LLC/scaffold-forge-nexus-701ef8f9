@@ -22,6 +22,9 @@ serve(async (req) => {
     // Get request body if present
     let requestBody: any = null;
     let bodyForWazuh = null;
+    let wazuhHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
 
     if (method !== 'GET' && method !== 'HEAD') {
       const bodyText = await req.text();
@@ -39,19 +42,34 @@ serve(async (req) => {
       }
     }
 
-    const fullUrl = `${WAZUH_API_URL}${path}`;
-    console.log(`Proxying ${method} request to: ${fullUrl}`);
-    console.log(`Request body:`, bodyForWazuh || 'none');
+    // Special handling for Wazuh login endpoint
+    let finalMethod = method;
+    let finalBody = bodyForWazuh;
+    
+    if (path === '/api/login' && requestBody?.username && requestBody?.password) {
+      // Wazuh API uses Basic Authentication for login
+      const credentials = `${requestBody.username}:${requestBody.password}`;
+      const base64Credentials = btoa(credentials);
+      wazuhHeaders['Authorization'] = `Basic ${base64Credentials}`;
+      
+      // Wazuh login is typically a GET request with Basic Auth
+      finalMethod = 'GET';
+      finalBody = null;
+      
+      console.log(`Using Basic Auth for login with username: ${requestBody.username}`);
+    } else if (req.headers.get('authorization')) {
+      // For non-login requests, forward the authorization header from client
+      wazuhHeaders['Authorization'] = req.headers.get('authorization')!;
+    }
 
+    const fullUrl = `${WAZUH_API_URL}${path}`;
+    console.log(`Proxying ${finalMethod} request to: ${fullUrl}`);
+    
     // Forward the request to Wazuh API
     const wazuhResponse = await fetch(fullUrl, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'osd-xsrf': 'true',
-        ...(req.headers.get('authorization') ? { 'Authorization': req.headers.get('authorization')! } : {}),
-      },
-      ...(bodyForWazuh ? { body: bodyForWazuh } : {}),
+      method: finalMethod,
+      headers: wazuhHeaders,
+      ...(finalBody ? { body: finalBody } : {}),
     });
 
     // Get response data
