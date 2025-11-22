@@ -19,7 +19,7 @@ export interface WazuhAgentsResponse {
 export const fetchWazuhAgents = async (authToken: string): Promise<WazuhAgentsResponse> => {
   try {
     const { data, error } = await supabase.functions.invoke('wazuh-proxy', {
-      body: { path: '/api/agents' },
+      body: { path: '/agents' },
       headers: {
         'Authorization': `Bearer ${authToken}`,
       },

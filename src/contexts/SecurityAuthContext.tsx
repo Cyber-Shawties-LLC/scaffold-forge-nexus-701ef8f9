@@ -83,7 +83,7 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
         body: {
           username,
           password,
-          path: "/api/login",
+          path: "/security/user/authenticate",
         },
       });
 
