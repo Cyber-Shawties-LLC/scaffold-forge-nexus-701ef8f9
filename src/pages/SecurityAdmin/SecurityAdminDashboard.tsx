@@ -24,7 +24,7 @@ const SecurityAdminDashboard = () => {
       icon: Shield,
       route: '/security-admin/wazuh',
       status: 'active',
-      description: 'Real-time threat detection and monitoring',
+      description: 'Unified threat detection and log analysis - AWS logs centralized here',
       gradient: 'from-primary to-secondary',
     },
     {
@@ -32,55 +32,7 @@ const SecurityAdminDashboard = () => {
       icon: Activity,
       route: '/security-admin/audit-logs',
       status: 'active',
-      description: 'Comprehensive security audit trail',
-      gradient: 'from-secondary to-accent',
-    },
-    {
-      name: 'AWS CloudTrail Logs',
-      icon: Activity,
-      route: '/security-admin/cloudtrail',
-      status: 'coming-soon',
-      description: 'AWS API activity logging',
-      gradient: 'from-secondary to-plum',
-    },
-    {
-      name: 'AWS GuardDuty Findings',
-      icon: Eye,
-      route: '/security-admin/guardduty',
-      status: 'coming-soon',
-      description: 'Intelligent threat detection',
-      gradient: 'from-plum to-accent',
-    },
-    {
-      name: 'AWS Security Hub Score',
-      icon: AlertTriangle,
-      route: '/security-admin/securityhub',
-      status: 'coming-soon',
-      description: 'Centralized security findings',
-      gradient: 'from-accent to-gold',
-    },
-    {
-      name: 'IAM Activity Monitor',
-      icon: Key,
-      route: '/security-admin/iam',
-      status: 'coming-soon',
-      description: 'Identity and access management',
-      gradient: 'from-gold to-primary',
-    },
-    {
-      name: 'S3 Bucket Monitoring',
-      icon: Database,
-      route: '/security-admin/s3',
-      status: 'coming-soon',
-      description: 'Storage security and compliance',
-      gradient: 'from-primary to-plum',
-    },
-    {
-      name: 'VPC Flow Logs',
-      icon: Network,
-      route: '/security-admin/vpc',
-      status: 'coming-soon',
-      description: 'Network traffic analysis',
+      description: 'Security Admin Portal access and activity logs',
       gradient: 'from-secondary to-accent',
     },
   ];
@@ -103,7 +55,9 @@ const SecurityAdminDashboard = () => {
               <Shield className="w-8 h-8" />
               Security Admin Portal
             </h1>
-            <p className="text-primary-foreground/80 text-lg">Central Security Command Center</p>
+            <p className="text-primary-foreground/80 text-lg">
+              Unified SIEM Platform — All AWS logs centralized in Wazuh
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-primary-foreground/70">Welcome, {username}</span>
@@ -119,7 +73,7 @@ const SecurityAdminDashboard = () => {
         </div>
 
         {/* Module Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
           {modules.map((module) => {
             const Icon = module.icon;
             return (
