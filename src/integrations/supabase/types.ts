@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      period_tracker: {
+        Row: {
+          created_at: string | null
+          cycle_length: number | null
+          fertile_window_end: string | null
+          fertile_window_start: string | null
+          id: string
+          last_period: string
+          next_period: string | null
+          notifications_enabled: boolean | null
+          period_length: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cycle_length?: number | null
+          fertile_window_end?: string | null
+          fertile_window_start?: string | null
+          id?: string
+          last_period: string
+          next_period?: string | null
+          notifications_enabled?: boolean | null
+          period_length?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cycle_length?: number | null
+          fertile_window_end?: string | null
+          fertile_window_start?: string | null
+          id?: string
+          last_period?: string
+          next_period?: string | null
+          notifications_enabled?: boolean | null
+          period_length?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
