@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const WAZUH_API_URL = Deno.env.get('VITE_WAZUH_API_URL') || 'https://api.uminur.app/wazuh';
+const WAZUH_API_URL = (Deno.env.get('VITE_WAZUH_API_URL') || 'https://api.uminur.app/wazuh').replace(/\/$/, '');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,10 +39,12 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Proxying ${method} request to: ${WAZUH_API_URL}${path}`);
+    const fullUrl = `${WAZUH_API_URL}${path}`;
+    console.log(`Proxying ${method} request to: ${fullUrl}`);
+    console.log(`Request body:`, bodyForWazuh || 'none');
 
     // Forward the request to Wazuh API
-    const wazuhResponse = await fetch(`${WAZUH_API_URL}${path}`, {
+    const wazuhResponse = await fetch(fullUrl, {
       method,
       headers: {
         'Content-Type': 'application/json',
@@ -63,6 +65,11 @@ serve(async (req) => {
     }
 
     console.log(`Wazuh API responded with status: ${wazuhResponse.status}`);
+    
+    if (wazuhResponse.status === 401) {
+      console.error('Authentication failed - 401 Unauthorized from Wazuh API');
+      console.error('Response text:', responseText);
+    }
 
     // Return the response with CORS headers
     return new Response(
