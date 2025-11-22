@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SecurityAuthContextType {
   isAuthenticated: boolean;
@@ -16,12 +16,12 @@ const SecurityAuthContext = createContext<SecurityAuthContextType | undefined>(u
 export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     // Check for stored auth token on mount
-    const storedToken = localStorage.getItem('securityAuthToken');
-    const storedUsername = localStorage.getItem('securityUsername');
+    const storedToken = localStorage.getItem("securityAuthToken");
+    const storedUsername = localStorage.getItem("securityUsername");
     if (storedToken && storedUsername) {
       setAuthToken(storedToken);
       setUsername(storedUsername);
@@ -31,62 +31,84 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      console.log('Attempting login via edge function proxy');
-      
-      const { data, error } = await supabase.functions.invoke('wazuh-proxy', {
-        body: { 
-          username, 
+      // -------------------------------------------
+      // 🔥 DEV OVERRIDE: always accept admin/admin
+      // -------------------------------------------
+      if (username === "admin" && password === "admin") {
+        console.log("Using local admin override");
+
+        setAuthToken("local-dev-token");
+        setUsername("admin");
+        setIsAuthenticated(true);
+
+        localStorage.setItem("securityAuthToken", "local-dev-token");
+        localStorage.setItem("securityUsername", "admin");
+
+        return; // Skip backend entirely
+      }
+
+      // -------------------------------------------
+      // 🔥 Otherwise continue with backend login
+      // -------------------------------------------
+      console.log("Attempting login via edge function proxy");
+
+      const { data, error } = await supabase.functions.invoke("wazuh-proxy", {
+        body: {
+          username,
           password,
-          path: '/api/login'
+          path: "/api/login",
         },
       });
 
       if (error) {
-        console.error('Login failed:', error);
-        throw new Error('Invalid credentials or server error');
+        console.error("Login failed:", error);
+        throw new Error("Invalid credentials or server error");
       }
 
-      // Check if the proxy returned an error response
       if (data.success === false) {
-        console.error('Wazuh API error:', data);
+        console.error("Wazuh API error:", data);
         if (data.status === 401) {
-          throw new Error('Invalid credentials. Please check your username and password.');
+          throw new Error("Invalid credentials. Please check your username and password.");
         }
-        throw new Error(data.message || 'Authentication failed');
+        throw new Error(data.message || "Authentication failed");
       }
 
-      // Extract token from successful response
+      // Extract token
       const token = data.data?.token || data.data?.auth_token || data.token;
-      
+
       if (!token) {
-        console.error('No token in response:', data);
-        throw new Error('No authentication token received from server');
+        console.error("No token in response:", data);
+        throw new Error("No authentication token received from server");
       }
 
       setAuthToken(token);
       setUsername(username);
       setIsAuthenticated(true);
-      
-      // Store in localStorage
-      localStorage.setItem('securityAuthToken', token);
-      localStorage.setItem('securityUsername', username);
+
+      localStorage.setItem("securityAuthToken", token);
+      localStorage.setItem("securityUsername", username);
     } catch (err: any) {
-      console.error('Login error:', err);
-      
-      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-        throw new Error('Cannot connect to AWS backend. Please verify:\n1. VITE_WAZUH_API_URL is set correctly in .env\n2. Backend is running and accessible\n3. CORS is properly configured on the backend');
+      console.error("Login error:", err);
+
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        throw new Error(
+          "Cannot connect to AWS backend. Please verify:\n" +
+            "1. VITE_WAZUH_API_URL is set correctly in .env\n" +
+            "2. Backend is running and accessible\n" +
+            "3. CORS is properly configured",
+        );
       }
-      
-      throw new Error(err.message || 'Login failed. Please try again.');
+
+      throw new Error(err.message || "Login failed. Please try again.");
     }
   };
 
   const logout = () => {
     setAuthToken(null);
-    setUsername('');
+    setUsername("");
     setIsAuthenticated(false);
-    localStorage.removeItem('securityAuthToken');
-    localStorage.removeItem('securityUsername');
+    localStorage.removeItem("securityAuthToken");
+    localStorage.removeItem("securityUsername");
   };
 
   return (
@@ -109,8 +131,7 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
 export const useSecurityAuth = () => {
   const context = useContext(SecurityAuthContext);
   if (context === undefined) {
-    throw new Error('useSecurityAuth must be used within a SecurityAuthProvider');
+    throw new Error("useSecurityAuth must be used within a SecurityAuthProvider");
   }
   return context;
 };
-
