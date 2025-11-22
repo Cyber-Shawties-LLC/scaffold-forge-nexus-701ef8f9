@@ -125,7 +125,7 @@ const PeriodTracker = () => {
         // Insert new record
         const { error } = await supabase
           .from("period_tracker")
-          .insert([dataToSave]);
+          .insert([{ ...dataToSave, user_id: userId }]);
 
         if (error) throw error;
         toast.success("Period tracker saved successfully");

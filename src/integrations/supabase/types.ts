@@ -35,48 +35,6 @@ export type Database = {
         }
         Relationships: []
       }
-      period_tracker: {
-        Row: {
-          id: string
-          user_id: string
-          last_period: string
-          cycle_length: number
-          period_length: number
-          next_period: string | null
-          fertile_window_start: string | null
-          fertile_window_end: string | null
-          notifications_enabled: boolean
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          last_period: string
-          cycle_length?: number
-          period_length?: number
-          next_period?: string | null
-          fertile_window_start?: string | null
-          fertile_window_end?: string | null
-          notifications_enabled?: boolean
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          last_period?: string
-          cycle_length?: number
-          period_length?: number
-          next_period?: string | null
-          fertile_window_start?: string | null
-          fertile_window_end?: string | null
-          notifications_enabled?: boolean
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
