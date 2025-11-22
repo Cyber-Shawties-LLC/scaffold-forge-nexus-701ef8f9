@@ -1,6 +1,28 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+// Utility function to log security admin actions
+const logSecurityAudit = async (
+  username: string,
+  actionType: string,
+  status: string,
+  metadata?: Record<string, any>
+) => {
+  try {
+    await supabase.from('security_audit_logs').insert({
+      username,
+      action_type: actionType,
+      resource_path: '/security-admin',
+      status,
+      ip_address: 'client-side',
+      user_agent: navigator.userAgent,
+      metadata
+    });
+  } catch (error) {
+    console.error('Failed to log security audit:', error);
+  }
+};
+
 interface SecurityAuthContextType {
   isAuthenticated: boolean;
   authToken: string | null;
@@ -43,6 +65,11 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
 
         localStorage.setItem("securityAuthToken", "local-dev-token");
         localStorage.setItem("securityUsername", "admin");
+
+        // Log successful login
+        await logSecurityAudit("admin", "LOGIN", "SUCCESS", {
+          method: "local-override"
+        });
 
         return; // Skip backend entirely
       }
@@ -87,8 +114,19 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
 
       localStorage.setItem("securityAuthToken", token);
       localStorage.setItem("securityUsername", username);
+
+      // Log successful login
+      await logSecurityAudit(username, "LOGIN", "SUCCESS", {
+        method: "wazuh-api"
+      });
     } catch (err: any) {
       console.error("Login error:", err);
+
+      // Log failed login attempt
+      await logSecurityAudit(username, "LOGIN", "FAILURE", {
+        error: err.message,
+        method: "wazuh-api"
+      });
 
       if (err.message === "Failed to fetch" || err.name === "TypeError") {
         throw new Error(
@@ -103,7 +141,14 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const currentUsername = username;
+
+    // Log logout
+    if (currentUsername) {
+      await logSecurityAudit(currentUsername, "LOGOUT", "SUCCESS", {});
+    }
+
     setAuthToken(null);
     setUsername("");
     setIsAuthenticated(false);

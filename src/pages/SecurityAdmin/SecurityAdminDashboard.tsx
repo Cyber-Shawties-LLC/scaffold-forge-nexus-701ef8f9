@@ -28,6 +28,14 @@ const SecurityAdminDashboard = () => {
       gradient: 'from-primary to-secondary',
     },
     {
+      name: 'Audit Logs',
+      icon: Activity,
+      route: '/security-admin/audit-logs',
+      status: 'active',
+      description: 'Comprehensive security audit trail',
+      gradient: 'from-secondary to-accent',
+    },
+    {
       name: 'AWS CloudTrail Logs',
       icon: Activity,
       route: '/security-admin/cloudtrail',
