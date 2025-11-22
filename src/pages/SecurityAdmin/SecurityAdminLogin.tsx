@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSecurityAuth } from '@/contexts/SecurityAuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Shield, Lock, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSecurityAuth } from "@/contexts/SecurityAuthContext";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Shield, Lock, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const SecurityAdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useSecurityAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("admin");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await login(username, password);
-      navigate('/security-admin/dashboard');
+      navigate("/security-admin/dashboard");
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -40,9 +40,7 @@ const SecurityAdminLogin = () => {
               <Lock className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="font-serif text-3xl font-bold">Security Admin Portal</CardTitle>
-            <CardDescription className="text-base">
-              Enter credentials to access security dashboard
-            </CardDescription>
+            <CardDescription className="text-base">Enter credentials to access security dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -84,7 +82,7 @@ const SecurityAdminLogin = () => {
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={loading}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? "Signing in..." : "Sign In"}
               </Button>
 
               <div className="text-center text-sm text-muted-foreground pt-4 border-t">
@@ -100,4 +98,3 @@ const SecurityAdminLogin = () => {
 };
 
 export default SecurityAdminLogin;
-
