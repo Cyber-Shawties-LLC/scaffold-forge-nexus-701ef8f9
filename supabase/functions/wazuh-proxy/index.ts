@@ -2,6 +2,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const WAZUH_API_URL = (Deno.env.get('VITE_WAZUH_API_URL') || 'https://api.uminur.app/wazuh').replace(/\/$/, '');
 
+// Whitelist of allowed API paths
+const ALLOWED_PATHS = [
+  '/api/login',
+  '/api/agents/summary/status',
+  '/api/agents',
+  '/api/alerts',
+  '/api/overview/agents',
+] as const;
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, osd-xsrf',
@@ -41,6 +50,41 @@ serve(async (req) => {
         bodyForWazuh = JSON.stringify(requestBody);
       }
     }
+
+    // Validate path is allowed
+    if (!ALLOWED_PATHS.includes(path as any)) {
+      console.error(`Blocked unauthorized path attempt: ${path}`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Unauthorized path',
+          message: 'This API endpoint is not available through the proxy'
+        }),
+        { 
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Additional path format validation
+    if (path.includes('..') || !path.startsWith('/api/')) {
+      console.error(`Blocked malicious path pattern: ${path}`);
+      return new Response(
+        JSON.stringify({ error: 'Invalid path format' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Log request for audit trail
+    console.log({
+      timestamp: new Date().toISOString(),
+      method,
+      path,
+      hasAuth: !!req.headers.get('authorization')
+    });
 
     // Special handling for Wazuh login endpoint
     let finalMethod = method;

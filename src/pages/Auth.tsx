@@ -11,6 +11,35 @@ import { toast } from "sonner";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
+import { z } from "zod";
+
+const signUpSchema = z.object({
+  email: z.string()
+    .trim()
+    .email("Invalid email format")
+    .min(5, "Email is too short")
+    .max(255, "Email is too long"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password is too long")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
+
+const signInSchema = z.object({
+  email: z.string()
+    .trim()
+    .email("Invalid email format")
+    .max(255, "Email is too long"),
+  password: z.string()
+    .min(1, "Password is required")
+    .max(128, "Password is too long")
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -43,13 +72,12 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
+    // Validate with zod schema
+    const result = signUpSchema.safeParse({ email, password, confirmPassword });
     
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (!result.success) {
+      const firstError = result.error.issues[0];
+      toast.error(firstError.message);
       return;
     }
     
@@ -77,6 +105,16 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate with zod schema
+    const result = signInSchema.safeParse({ email, password });
+    
+    if (!result.success) {
+      const firstError = result.error.issues[0];
+      toast.error(firstError.message);
+      return;
+    }
+    
     setLoading(true);
 
     try {
