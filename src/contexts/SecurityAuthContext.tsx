@@ -32,8 +32,11 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const WAZUH_API_URL = import.meta.env.VITE_WAZUH_API_URL || 'https://api.uminur.app/wazuh';
       
+      console.log('Attempting login to:', `${WAZUH_API_URL}/api/login`);
+      
       const response = await fetch(`${WAZUH_API_URL}/api/login`, {
         method: 'POST',
+        mode: 'cors',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +46,9 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        const errorText = await response.text();
+        console.error('Login failed:', response.status, errorText);
+        throw new Error('Invalid credentials or server error');
       }
 
       const data = await response.json();
@@ -61,6 +66,12 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('securityAuthToken', token);
       localStorage.setItem('securityUsername', username);
     } catch (err: any) {
+      console.error('Login error:', err);
+      
+      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+        throw new Error('Cannot connect to AWS backend. Please verify:\n1. VITE_WAZUH_API_URL is set correctly in .env\n2. Backend is running and accessible\n3. CORS is properly configured on the backend');
+      }
+      
       throw new Error(err.message || 'Login failed. Please try again.');
     }
   };
