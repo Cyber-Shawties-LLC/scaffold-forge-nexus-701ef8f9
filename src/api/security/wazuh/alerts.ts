@@ -27,7 +27,7 @@ export const fetchWazuhAlerts = async (
 ): Promise<WazuhAlertsResponse> => {
   try {
     const { data, error } = await supabase.functions.invoke('wazuh-proxy', {
-      body: { path: `/api/alerts?limit=${limit}` },
+      body: { path: `/security/alerts?limit=${limit}` },
       headers: {
         'Authorization': `Bearer ${authToken}`,
       },

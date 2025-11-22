@@ -8,14 +8,14 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Whitelist of allowed API paths
+// Whitelist of allowed API paths (standard Wazuh API v4.x structure)
 const ALLOWED_PATHS = [
-  '/api/login',
-  '/api/manager/status',
-  '/api/agents/summary/status',
-  '/api/agents',
-  '/api/alerts',
-  '/api/overview/agents',
+  '/security/user/authenticate',
+  '/manager/status',
+  '/agents/summary/status',
+  '/agents',
+  '/security/alerts',
+  '/overview/agents',
 ] as const;
 
 const corsHeaders = {
@@ -77,7 +77,7 @@ serve(async (req) => {
     }
 
     // Additional path format validation (check base path)
-    if (basePath.includes('..') || !basePath.startsWith('/api/')) {
+    if (basePath.includes('..') || !basePath.startsWith('/')) {
       console.error(`Blocked malicious path pattern: ${path}`);
       return new Response(
         JSON.stringify({ error: 'Invalid path format' }),
@@ -109,7 +109,7 @@ serve(async (req) => {
     let finalMethod = method;
     let finalBody = bodyForWazuh;
     
-    if (path === '/api/login' && requestBody?.username && requestBody?.password) {
+    if (path === '/security/user/authenticate' && requestBody?.username && requestBody?.password) {
       // Wazuh API uses Basic Authentication for login
       const credentials = `${requestBody.username}:${requestBody.password}`;
       const base64Credentials = btoa(credentials);
@@ -150,7 +150,7 @@ serve(async (req) => {
     // Log to database for audit trail
     const auditLogEntry = {
       username,
-      action_type: path === '/api/login' ? 'LOGIN_ATTEMPT' : 'API_ACCESS',
+      action_type: path === '/security/user/authenticate' ? 'LOGIN_ATTEMPT' : 'API_ACCESS',
       resource_path: path,
       status: wazuhResponse.status === 200 ? 'SUCCESS' : 'FAILURE',
       ip_address: ipAddress,

@@ -18,7 +18,7 @@ export interface WazuhSummaryResponse {
 export const fetchWazuhSummary = async (authToken: string): Promise<WazuhSummaryResponse> => {
   try {
     const { data, error } = await supabase.functions.invoke('wazuh-proxy', {
-      body: { path: '/api/agents/summary/status' },
+      body: { path: '/agents/summary/status' },
       headers: {
         'Authorization': `Bearer ${authToken}`,
       },
