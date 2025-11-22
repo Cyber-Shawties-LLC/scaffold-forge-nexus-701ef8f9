@@ -1,4 +1,4 @@
-const WAZUH_API_URL = import.meta.env.VITE_WAZUH_API_URL || 'https://api.uminur.app/wazuh';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface WazuhAlert {
   id: string;
@@ -26,26 +26,19 @@ export const fetchWazuhAlerts = async (
   limit: number = 10
 ): Promise<WazuhAlertsResponse> => {
   try {
-    const response = await fetch(`${WAZUH_API_URL}/api/alerts?limit=${limit}`, {
-      method: 'GET',
-      credentials: 'include',
-      mode: 'cors',
+    const { data, error } = await supabase.functions.invoke('wazuh-proxy', {
+      body: { path: `/api/alerts?limit=${limit}` },
       headers: {
-        'Content-Type': 'application/json',
-        'osd-xsrf': 'true',
         'Authorization': `Bearer ${authToken}`,
       },
     });
 
-    if (response.status === 401) {
-      throw new Error('UNAUTHORIZED');
+    if (error) {
+      if (error.message.includes('401')) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(`API error: ${error.message}`);
     }
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
     
     return {
       success: true,
