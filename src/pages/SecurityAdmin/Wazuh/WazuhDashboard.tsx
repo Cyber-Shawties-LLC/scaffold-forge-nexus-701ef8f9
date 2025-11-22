@@ -9,10 +9,12 @@ import { Shield, Activity, AlertTriangle, RefreshCw, Server, Users, AlertCircle 
 import { fetchWazuhSummary } from '@/api/security/wazuh/summary';
 import { fetchWazuhAlerts } from '@/api/security/wazuh/alerts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const WazuhDashboard = () => {
   const navigate = useNavigate();
   const { authToken, setAuthToken, setIsAuthenticated } = useSecurityAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -25,23 +27,60 @@ const WazuhDashboard = () => {
 
     try {
       setError('');
-      const [summaryData, alertsData] = await Promise.all([
+      
+      // Fetch data with better error handling
+      const [summaryResult, alertsResult] = await Promise.allSettled([
         fetchWazuhSummary(authToken),
         fetchWazuhAlerts(authToken, 5),
       ]);
 
-      setSummary(summaryData.data);
-      setAlerts(alertsData.data);
-      setLastUpdated(new Date());
-    } catch (err: any) {
-      if (err.message === 'UNAUTHORIZED') {
+      // Handle summary data
+      if (summaryResult.status === 'fulfilled') {
+        setSummary(summaryResult.value.data);
+      } else {
+        console.error('Failed to fetch summary:', summaryResult.reason);
+        if (summaryResult.reason?.message !== 'UNAUTHORIZED') {
+          // Keep existing data if available, just show error
+          setError('Unable to fetch manager status. Showing cached data.');
+        }
+      }
+
+      // Handle alerts data
+      if (alertsResult.status === 'fulfilled') {
+        setAlerts(alertsResult.value.data);
+      } else {
+        console.error('Failed to fetch alerts:', alertsResult.reason);
+        // Keep existing alerts data if available
+      }
+
+      // Check for unauthorized
+      if (
+        (summaryResult.status === 'rejected' && summaryResult.reason?.message === 'UNAUTHORIZED') ||
+        (alertsResult.status === 'rejected' && alertsResult.reason?.message === 'UNAUTHORIZED')
+      ) {
+        toast({
+          title: 'Session Expired',
+          description: 'Please log in again.',
+          variant: 'destructive',
+        });
         localStorage.removeItem('securityAuthToken');
         setAuthToken(null);
         setIsAuthenticated(false);
         navigate('/security-admin/login');
         return;
       }
-      setError(err.message || 'Failed to fetch Wazuh data');
+
+      setLastUpdated(new Date());
+      
+      if (refreshing) {
+        toast({
+          title: 'Dashboard Updated',
+          description: 'Data refreshed successfully.',
+        });
+      }
+    } catch (err: any) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -177,37 +216,43 @@ const WazuhDashboard = () => {
             <AlertCircle className="w-5 h-5" />
             Recent Security Alerts
           </CardTitle>
-          <CardDescription>Latest security events and alerts</CardDescription>
+          <CardDescription>Latest security events and alerts from Wazuh</CardDescription>
         </CardHeader>
         <CardContent>
           {alerts.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No recent alerts</p>
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+              <p className="text-muted-foreground">No alerts found</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Your system is running smoothly with no recent security events
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
               {alerts.map((alert, index) => (
                 <div
-                  key={alert.id || index}
+                  key={alert.id || alert._id || index}
                   className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge
                         variant={
-                          alert.level >= 12
+                          alert.rule?.level >= 12 || alert.level >= 12
                             ? 'destructive'
-                            : alert.level >= 8
+                            : alert.rule?.level >= 8 || alert.level >= 8
                             ? 'default'
                             : 'secondary'
                         }
                       >
-                        Level {alert.level}
+                        Level {alert.rule?.level || alert.level || 'N/A'}
                       </Badge>
                       <span className="text-sm font-medium">
-                        {alert.rule?.description || 'Security Event'}
+                        {alert.rule?.description || alert.description || 'Security Event'}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Agent: {alert.agent?.name || 'Unknown'} •{' '}
+                      Agent: {alert.agent?.name || alert.agent_name || 'Unknown'} •{' '}
                       {alert.timestamp
                         ? new Date(alert.timestamp).toLocaleString()
                         : 'Unknown time'}
