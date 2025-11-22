@@ -34,18 +34,36 @@ export const fetchWazuhAlerts = async (
     });
 
     if (error) {
-      if (error.message.includes('401')) {
+      console.error('Wazuh alerts error:', error);
+      if (error.message?.includes('401') || error.status === 401) {
         throw new Error('UNAUTHORIZED');
       }
       throw new Error(`API error: ${error.message}`);
     }
+
+    // Check if edge function returned an error response
+    if (data?.success === false) {
+      console.error('Wazuh API error:', data);
+      if (data.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(data.message || 'Failed to fetch alerts');
+    }
+
+    console.log('Wazuh alerts response:', data);
+
+    // Parse the Wazuh API response structure
+    // Wazuh API returns: { data: { affected_items: [...], total_affected_items: N } }
+    const wazuhData = data?.data?.data || data?.data || {};
+    const alerts = wazuhData.affected_items || wazuhData.items || [];
     
     return {
       success: true,
-      data: data.data?.items || [],
+      data: alerts,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
+    console.error('Failed to fetch Wazuh alerts:', error);
     if (error.message === 'UNAUTHORIZED') {
       throw error;
     }

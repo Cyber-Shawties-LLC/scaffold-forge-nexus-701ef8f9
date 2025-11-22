@@ -11,6 +11,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // Whitelist of allowed API paths
 const ALLOWED_PATHS = [
   '/api/login',
+  '/api/manager/status',
   '/api/agents/summary/status',
   '/api/agents',
   '/api/alerts',

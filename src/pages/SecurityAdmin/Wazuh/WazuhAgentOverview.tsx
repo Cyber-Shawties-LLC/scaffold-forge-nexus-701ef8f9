@@ -9,10 +9,12 @@ import { Users, Activity, AlertTriangle, RefreshCw, AlertCircle } from 'lucide-r
 import { fetchWazuhSummary } from '@/api/security/wazuh/summary';
 import { fetchWazuhAgents } from '@/api/security/wazuh/agents';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const WazuhAgentOverview = () => {
   const navigate = useNavigate();
   const { authToken, setAuthToken, setIsAuthenticated } = useSecurityAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -25,23 +27,57 @@ const WazuhAgentOverview = () => {
 
     try {
       setError('');
-      const [summaryData, agentsData] = await Promise.all([
+      
+      const [summaryResult, agentsResult] = await Promise.allSettled([
         fetchWazuhSummary(authToken),
         fetchWazuhAgents(authToken),
       ]);
 
-      setSummary(summaryData.data);
-      setAgents(agentsData.data);
-      setLastUpdated(new Date());
-    } catch (err: any) {
-      if (err.message === 'UNAUTHORIZED') {
+      // Handle summary data
+      if (summaryResult.status === 'fulfilled') {
+        setSummary(summaryResult.value.data);
+      } else {
+        console.error('Failed to fetch summary:', summaryResult.reason);
+        if (summaryResult.reason?.message !== 'UNAUTHORIZED') {
+          setError('Unable to fetch agent summary. Showing cached data.');
+        }
+      }
+
+      // Handle agents data
+      if (agentsResult.status === 'fulfilled') {
+        setAgents(agentsResult.value.data);
+      } else {
+        console.error('Failed to fetch agents:', agentsResult.reason);
+      }
+
+      // Check for unauthorized
+      if (
+        (summaryResult.status === 'rejected' && summaryResult.reason?.message === 'UNAUTHORIZED') ||
+        (agentsResult.status === 'rejected' && agentsResult.reason?.message === 'UNAUTHORIZED')
+      ) {
+        toast({
+          title: 'Session Expired',
+          description: 'Please log in again.',
+          variant: 'destructive',
+        });
         localStorage.removeItem('securityAuthToken');
         setAuthToken(null);
         setIsAuthenticated(false);
         navigate('/security-admin/login');
         return;
       }
-      setError(err.message || 'Failed to fetch Wazuh data');
+
+      setLastUpdated(new Date());
+      
+      if (refreshing) {
+        toast({
+          title: 'Agents Updated',
+          description: 'Agent data refreshed successfully.',
+        });
+      }
+    } catch (err: any) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);

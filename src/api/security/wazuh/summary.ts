@@ -25,28 +25,51 @@ export const fetchWazuhSummary = async (authToken: string): Promise<WazuhSummary
     });
 
     if (error) {
-      if (error.message.includes('401')) {
+      console.error('Wazuh summary error:', error);
+      if (error.message?.includes('401') || error.status === 401) {
         throw new Error('UNAUTHORIZED');
       }
       throw new Error(`API error: ${error.message}`);
     }
+
+    // Check if edge function returned an error response
+    if (data?.success === false) {
+      console.error('Wazuh API error:', data);
+      if (data.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(data.message || 'Failed to fetch summary');
+    }
+
+    console.log('Wazuh summary response:', data);
+
+    // Parse the Wazuh API response structure
+    const wazuhData = data?.data?.data || data?.data || {};
     
-    // Transform the response to match our expected format
+    // Extract agent counts from the response
+    const connection = wazuhData.connection || 'disconnected';
+    const total = wazuhData.total || 0;
+    const active = wazuhData.active || 0;
+    const disconnected = wazuhData.disconnected || 0;
+    const pending = wazuhData.pending || 0;
+    const neverConnected = wazuhData.never_connected || 0;
+    
     return {
       success: true,
       data: {
         manager: {
-          status: data.data?.manager?.status === 'online' ? 'online' : 'offline',
+          status: connection === 'active' || active > 0 ? 'online' : 'offline',
         },
         agents: {
-          total: data.data?.agents?.total || 0,
-          active: data.data?.agents?.active || 0,
-          disconnected: data.data?.agents?.disconnected || 0,
+          total: total,
+          active: active,
+          disconnected: disconnected + pending + neverConnected,
         },
       },
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
+    console.error('Failed to fetch Wazuh summary:', error);
     if (error.message === 'UNAUTHORIZED') {
       throw error;
     }

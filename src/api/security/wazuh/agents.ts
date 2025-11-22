@@ -26,18 +26,36 @@ export const fetchWazuhAgents = async (authToken: string): Promise<WazuhAgentsRe
     });
 
     if (error) {
-      if (error.message.includes('401')) {
+      console.error('Wazuh agents error:', error);
+      if (error.message?.includes('401') || error.status === 401) {
         throw new Error('UNAUTHORIZED');
       }
       throw new Error(`API error: ${error.message}`);
     }
+
+    // Check if edge function returned an error response
+    if (data?.success === false) {
+      console.error('Wazuh API error:', data);
+      if (data.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(data.message || 'Failed to fetch agents');
+    }
+
+    console.log('Wazuh agents response:', data);
+
+    // Parse the Wazuh API response structure
+    // Wazuh API returns: { data: { affected_items: [...], total_affected_items: N } }
+    const wazuhData = data?.data?.data || data?.data || {};
+    const agents = wazuhData.affected_items || wazuhData.items || [];
     
     return {
       success: true,
-      data: data.data?.items || [],
+      data: agents,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
+    console.error('Failed to fetch Wazuh agents:', error);
     if (error.message === 'UNAUTHORIZED') {
       throw error;
     }
