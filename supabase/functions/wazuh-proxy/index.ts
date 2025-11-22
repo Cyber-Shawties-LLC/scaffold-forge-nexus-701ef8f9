@@ -69,11 +69,28 @@ serve(async (req) => {
     if (wazuhResponse.status === 401) {
       console.error('Authentication failed - 401 Unauthorized from Wazuh API');
       console.error('Response text:', responseText);
+
+      // Always return 200 to the frontend, but include the 401 info in the body
+      return new Response(
+        JSON.stringify({
+          success: false,
+          status: 401,
+          error: 'UNAUTHORIZED',
+          message: typeof responseData === 'string' ? responseData : responseData?.message || 'Authentication Exception',
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     // Return the response with CORS headers
     return new Response(
-      JSON.stringify(responseData),
+      JSON.stringify({ success: true, data: responseData }),
       {
         status: wazuhResponse.status,
         headers: {
