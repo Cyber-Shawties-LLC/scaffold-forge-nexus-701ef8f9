@@ -22,6 +22,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SecurityAdminLogin from "./pages/SecurityAdmin/SecurityAdminLogin";
 import SecurityAdminDashboard from "./pages/SecurityAdmin/SecurityAdminDashboard";
 import WazuhModule from "./pages/SecurityAdmin/Wazuh/WazuhModule";
+import AuditLogs from "./pages/SecurityAdmin/AuditLogs";
 import ComingSoon from "./pages/SecurityAdmin/ComingSoon";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <WazuhModule />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/security-admin/audit-logs"
+              element={
+                <ProtectedRoute>
+                  <AuditLogs />
                 </ProtectedRoute>
               }
             />

@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const WAZUH_API_URL = (Deno.env.get('VITE_WAZUH_API_URL') || 'https://api.uminur.app/wazuh').replace(/\/$/, '');
+
+// Initialize Supabase client for audit logging
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Whitelist of allowed API paths
 const ALLOWED_PATHS = [
@@ -78,11 +84,20 @@ serve(async (req) => {
       );
     }
 
-    // Log request for audit trail
+    // Extract username from request body or headers
+    const username = requestBody?.username || 'unknown';
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    const userAgent = req.headers.get('user-agent') || 'unknown';
+
+    // Log request for console audit trail
     console.log({
       timestamp: new Date().toISOString(),
       method,
       path,
+      username,
+      ipAddress,
       hasAuth: !!req.headers.get('authorization')
     });
 
@@ -127,6 +142,26 @@ serve(async (req) => {
     }
 
     console.log(`Wazuh API responded with status: ${wazuhResponse.status}`);
+    
+    // Log to database for audit trail
+    const auditLogEntry = {
+      username,
+      action_type: path === '/api/login' ? 'LOGIN_ATTEMPT' : 'API_ACCESS',
+      resource_path: path,
+      status: wazuhResponse.status === 200 ? 'SUCCESS' : 'FAILURE',
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      metadata: {
+        method: finalMethod,
+        statusCode: wazuhResponse.status,
+        hasAuth: !!req.headers.get('authorization')
+      }
+    };
+
+    // Insert audit log (don't await to avoid slowing down response)
+    supabase.from('security_audit_logs').insert(auditLogEntry).then(({ error }) => {
+      if (error) console.error('Failed to log audit entry:', error);
+    });
     
     if (wazuhResponse.status === 401) {
       console.error('Authentication failed - 401 Unauthorized from Wazuh API');
