@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityAuthContextType {
   isAuthenticated: boolean;
@@ -30,28 +31,20 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      const WAZUH_API_URL = import.meta.env.VITE_WAZUH_API_URL || 'https://api.uminur.app/wazuh';
+      console.log('Attempting login via edge function proxy');
       
-      console.log('Attempting login to:', `${WAZUH_API_URL}/api/login`);
-      
-      const response = await fetch(`${WAZUH_API_URL}/api/login`, {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'osd-xsrf': 'true',
+      const { data, error } = await supabase.functions.invoke('wazuh-proxy', {
+        body: { 
+          username, 
+          password,
+          path: '/api/login'
         },
-        body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Login failed:', response.status, errorText);
+      if (error) {
+        console.error('Login failed:', error);
         throw new Error('Invalid credentials or server error');
       }
-
-      const data = await response.json();
       const token = data.data?.token || data.token;
       
       if (!token) {
