@@ -45,10 +45,22 @@ export const SecurityAuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Login failed:', error);
         throw new Error('Invalid credentials or server error');
       }
-      const token = data.data?.token || data.token;
+
+      // Check if the proxy returned an error response
+      if (data.success === false) {
+        console.error('Wazuh API error:', data);
+        if (data.status === 401) {
+          throw new Error('Invalid credentials. Please check your username and password.');
+        }
+        throw new Error(data.message || 'Authentication failed');
+      }
+
+      // Extract token from successful response
+      const token = data.data?.token || data.data?.auth_token || data.token;
       
       if (!token) {
-        throw new Error('No token received from server');
+        console.error('No token in response:', data);
+        throw new Error('No authentication token received from server');
       }
 
       setAuthToken(token);
