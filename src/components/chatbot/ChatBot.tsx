@@ -3,6 +3,8 @@ import { MessageSquare, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { pamChat } from "@/lib/pamClient";
+import { streamText } from "@/utils/streamText";
 
 interface Message {
   id: string;
@@ -46,40 +48,12 @@ const ChatBot = ({ mode }: ChatBotProps) => {
   }, [isOpen, mode, messages.length]);
 
   const sendMessageToAI = async (message: string): Promise<string> => {
-    // Simulate AI processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
-
-    // Placeholder AI responses based on keywords
-    const lowerMessage = message.toLowerCase();
-    
-    if (mode === "patient") {
-      if (lowerMessage.includes("wellness") || lowerMessage.includes("health")) {
-        return "I recommend checking out our Wellness Resources section! We have great content on nutrition, exercise, mental health, and sleep hygiene. Would you like me to guide you there?";
-      }
-      if (lowerMessage.includes("privacy") || lowerMessage.includes("security")) {
-        return "Your privacy is our top priority! You can view who accessed your data in the Privacy & Security tab. All your health information is encrypted with military-grade AES-256 encryption.";
-      }
-      if (lowerMessage.includes("appointment")) {
-        return "You can view and manage your appointments in the Appointments tab. Would you like me to show you how to schedule a new appointment?";
-      }
-      if (lowerMessage.includes("symptom")) {
-        return "I can help you understand your symptoms, but remember I'm not a replacement for professional medical advice. For urgent concerns, please contact your healthcare provider. What symptoms are you experiencing?";
-      }
-      return "I'm here to help! You can ask me about wellness tips, privacy settings, appointments, or navigating your dashboard. What would you like to know?";
-    } else {
-      if (lowerMessage.includes("log") || lowerMessage.includes("audit")) {
-        return "You can access security logs in the Security Logs tab. They show all system access events, authentication attempts, and data access patterns. Would you like guidance on interpreting them?";
-      }
-      if (lowerMessage.includes("user") || lowerMessage.includes("patient")) {
-        return "The Users tab allows you to manage all system users, view their roles, and monitor their activity. You can add new users, modify permissions, or deactivate accounts as needed.";
-      }
-      if (lowerMessage.includes("compliance") || lowerMessage.includes("hipaa")) {
-        return "Umi Nur is designed with HIPAA compliance in mind. All data is encrypted at rest and in transit, and we maintain detailed audit logs. You can generate compliance reports in the Reports tab.";
-      }
-      if (lowerMessage.includes("report")) {
-        return "The Reports tab provides analytics on system usage, security events, and compliance metrics. You can export reports in various formats for auditing purposes.";
-      }
-      return "I can assist with navigating admin tools, understanding security logs, managing users, and compliance questions. What do you need help with?";
+    try {
+      const reply = await pamChat(message);
+      return reply;
+    } catch (error) {
+      console.error('Error getting PAM response:', error);
+      return "I'm having trouble connecting right now. Please try again in a moment.";
     }
   };
 
@@ -94,27 +68,42 @@ const ChatBot = ({ mode }: ChatBotProps) => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const userInput = input;
     setInput("");
     setIsLoading(true);
 
+    // Add placeholder assistant message
+    const placeholderId = (Date.now() + 1).toString();
+    const placeholderMessage: Message = {
+      id: placeholderId,
+      role: "assistant",
+      content: "...",
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, placeholderMessage]);
+
     try {
-      const response = await sendMessageToAI(input);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+      const aiResponse = await sendMessageToAI(userInput);
+      
+      // Stream the response with typing effect
+      await streamText(aiResponse, (partial) => {
+        setMessages((prev) => 
+          prev.map((msg) => 
+            msg.id === placeholderId 
+              ? { ...msg, content: partial }
+              : msg
+          )
+        );
+      });
     } catch (error) {
       console.error("Error getting AI response:", error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "I apologize, but I encountered an error. Please try again.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => 
+        prev.map((msg) => 
+          msg.id === placeholderId 
+            ? { ...msg, content: "I'm having trouble connecting right now. Please try again." }
+            : msg
+        )
+      );
     } finally {
       setIsLoading(false);
     }
