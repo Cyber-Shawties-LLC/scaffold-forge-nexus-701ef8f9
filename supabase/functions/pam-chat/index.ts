@@ -25,7 +25,9 @@ serve(async (req) => {
     // Wrap user message with system prompt
     const fullMessage = `${SYSTEM_PROMPT}\n\nUser: ${message}`;
 
-    const response = await fetch('https://huggingface.co/spaces/pythonprincess/PAM-UmiNur/ai/chat/', {
+    // HuggingFace Spaces are deployed at {username}-{spacename}.hf.space
+    // The endpoint path depends on how the Space is configured
+    const response = await fetch('https://pythonprincess-pam-uminur.hf.space/ai/chat/', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${pamToken}`,
