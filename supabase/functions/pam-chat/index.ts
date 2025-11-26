@@ -22,11 +22,7 @@ serve(async (req) => {
       throw new Error('PAM_HuggingFace_Token not configured');
     }
 
-    // Wrap user message with system prompt
-    const fullMessage = `${SYSTEM_PROMPT}\n\nUser: ${message}`;
-
-    // HuggingFace Spaces are deployed at {username}-{spacename}.hf.space
-    // The endpoint path depends on how the Space is configured
+    // HuggingFace Space public endpoint
     const response = await fetch('https://pythonprincess-pam-uminur.hf.space/ai/chat/', {
       method: 'POST',
       headers: {
@@ -34,8 +30,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: fullMessage,
-        personality: true,
+        user_input: message,
       }),
     });
 

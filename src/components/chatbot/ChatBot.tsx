@@ -39,8 +39,8 @@ const ChatBot = ({ mode }: ChatBotProps) => {
         role: "assistant",
         content:
           mode === "patient"
-            ? "Hi! I'm Umi, your AI assistant. How can I help you today? I can assist with wellness tips, navigating your dashboard, understanding privacy settings, and answering health questions."
-            : "Hello! I'm here to assist with system management. How can I help you navigate admin tools, understand logs, or manage compliance?",
+            ? "Hi! I'm PAM, your AI assistant. How can I help you today? I can assist with wellness tips, navigating your dashboard, understanding privacy settings, and answering health questions."
+            : "Hi! I'm PAM. How can I assist you with system management today? I can help with user management, security logs, compliance monitoring, and administrative tasks.",
         timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
@@ -140,7 +140,7 @@ const ChatBot = ({ mode }: ChatBotProps) => {
               </div>
               <div>
                 <h3 className="font-serif font-bold text-primary-foreground">
-                  {mode === "patient" ? "Umi Assistant" : "Admin Assistant"}
+                  PAM Assistant
                 </h3>
                 <p className="text-xs text-primary-foreground/80">Always here to help</p>
               </div>
