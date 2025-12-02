@@ -53,6 +53,13 @@ const ChatBot = ({ mode }: ChatBotProps) => {
       return reply;
     } catch (error) {
       console.error('Error getting PAM response:', error);
+      const errorMessage = error instanceof Error ? error.message : '';
+      
+      // Handle specific error messages
+      if (errorMessage.includes('HuggingFace Space')) {
+        return "I'm currently paused. Please ask the administrator to restart the PAM HuggingFace Space to continue our conversation.";
+      }
+      
       return "I'm having trouble connecting right now. Please try again in a moment.";
     }
   };

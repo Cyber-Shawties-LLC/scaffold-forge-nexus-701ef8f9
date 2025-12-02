@@ -35,7 +35,14 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      console.error('PAM API error:', response.status, await response.text());
+      const errorText = await response.text();
+      console.error('PAM API error:', response.status, errorText);
+      
+      // Handle specific error cases
+      if (response.status === 503) {
+        throw new Error('PAM is temporarily unavailable. Please restart the HuggingFace Space at https://huggingface.co/spaces/pythonprincess/PAM-UmiNur');
+      }
+      
       throw new Error(`PAM API request failed: ${response.status}`);
     }
 
