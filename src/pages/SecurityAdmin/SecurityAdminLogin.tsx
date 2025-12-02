@@ -11,8 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 const SecurityAdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useSecurityAuth();
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -85,10 +85,6 @@ const SecurityAdminLogin = () => {
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
 
-              <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-                <p>Default credentials:</p>
-                <p className="font-mono text-xs mt-1">admin / admin</p>
-              </div>
             </form>
           </CardContent>
         </Card>
